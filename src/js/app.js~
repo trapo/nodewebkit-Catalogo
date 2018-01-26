@@ -1,0 +1,108 @@
+
+var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+
+var dataBase = null;
+//dataBase = indexedDB.open('catalogo');
+dataBase = indexedDB.open("catalogo", 1);
+
+
+  dataBase.onupgradeneeded = function (e) {
+
+    var active = dataBase.result;
+
+
+    var objectDb = active.createObjectStore("precios", {keyPath: 'id', autoIncrement : true });
+
+
+    objectDb.createIndex('index_Referencia','Referencia', {unique : false});
+    objectDb.createIndex('index_Articulo','Articulo', {unique : false});
+    objectDb.createIndex('index_Precio','Precio', {unique : false});
+
+  };
+
+  dataBase.onsuccess = function (e) {
+    alert("Base de datos cargada correctamente");
+
+  };
+
+  dataBase.onerror = function (e) {
+    alert("Error cargando la base de datos");
+  };
+
+
+var loadFileTempData = [];
+var file;
+function loadfile(event) { //load data file into variable
+    file = event.target.files[0];
+
+
+
+}
+function loadfile2() { //process data from variable
+    if (file) {
+        /*   var data = file;
+           var active = dataBase.result;
+           var data = active.transaction(["precios"], "readwrite");
+           var object = data.objectStore("precios");
+           
+          // alert(document.querySelector("#dni").value);
+           var request = object.put({
+               Referencia: '2',
+               Articulo: '22',
+               Precio: 22
+           });*/
+
+
+        var lector = new FileReader();
+        lector.onload = function (e) {
+            var contenido = e.target.result;
+            var linea = [];
+            linea = contenido.split('\n');
+            var encabezado = [];
+            encabezado = linea[0].split(',')
+            //var columna = contenido.split('\n');
+
+            var active = dataBase.result;
+            // var transaction = active.transaction(["precios"], "readwrite");
+
+            var transaction = active.transaction(["precios"], "readwrite");
+
+            transaction.oncomplete = function (event) {
+                console.log('Transaction completed: database modification finished');
+            };
+            transaction.onerror = function (event) {
+                console.log('Transaction not opened due to error. Duplicate items not allowed')
+            };
+
+
+
+
+            for (j = 1; j < linea.length; j++) {
+
+                var transaction = active.transaction(["precios"], "readwrite");
+                var object = transaction.objectStore("precios");
+                var columna = linea[j].split(',');
+                var ce1 = encabezado[1];
+                var ce2 = encabezado[2];
+                var ce3 = encabezado[3];
+                var cd1 = columna[1]?columna[1]:""; 
+                var cd2 = columna[2]?columna[2]:"";
+                var cd3 = parseInt(columna[3]) > 0?parseInt(columna[3]) : 1;
+                object.put({
+                    "Referencia": cd1,
+                    "Articulo": cd2,
+                    "Precio": cd3
+                });
+                
+            }
+           
+
+        };
+        lector.readAsText(file);
+
+
+
+    }
+}
+
+

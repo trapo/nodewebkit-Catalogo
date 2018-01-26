@@ -1,0 +1,10 @@
+body{
+    height:auto;
+    width:100%;
+}
+
+#iframeTramites{
+	 height:100%;
+   	 width:100%;
+}
+
